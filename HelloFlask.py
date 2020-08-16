@@ -1,8 +1,26 @@
+#pip install mysqlclient
 from flask import Flask ,redirect,render_template, make_response,request,session,url_for
+from flask_sqlalchemy import SQLAlchemy
 app =Flask(__name__)
-
+app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql://root:@localhost/dq_database'
 app.secret_key="Surya"
-@app.route('/index', methods=['GET'])
+db=SQLAlchemy(app)
+class user_1(db.Model):
+    _id =db.Column("ID",db.Integer,primary_key =True)
+    name =db.Column(db.String(100))
+    email =db.Column(db.String(100))
+    password =db.Column(db.String(100))
+
+    def __init__(self,name,email,password):
+        self.name =name
+        self.email = email
+        self.password = password
+
+#Db 
+
+
+
+#@app.route('/index', methods=['GET'])
 #home page
 @app.route("/")
 
@@ -19,6 +37,18 @@ def login ():
     if request.method == 'POST':
         email = request.form["InputEmail"]
         session["email"]=email
+        admin = user(email, email,email)
+
+        db.create_all() # In case user table doesn't exists already. Else remove it.    
+
+        db.session.add(admin)
+
+        db.session.commit()
+
+
+
+
+
         return redirect(url_for("admin",data=email))
     else:
         if "email" in session :
@@ -52,6 +82,7 @@ def name(name):
     return (f'Helow {name}!')
 
 if __name__ == "__main__":
+    db.create_all()
     app.run(host='localhost', port=9874,debug=True)
 
 
